@@ -13,30 +13,28 @@ class HumanPlayer
   attr_reader :name, :color, :board
 
   def initialize(name, color, board)
-    @name = name
-    @color = color
-    @board = board
+    @name, @color, @board =
+     name,  color,  board
   end
 
   def choose
     begin
       #CHANGE TO ACCEPT A SERIES OF MOVES
-    puts "#{color.capitalize} choose a spot to move from (a1 for example)"
-    from = gets.chomp.split("")
-    from_col = Integer(from[1])
-    from_row = Integer(LETTER_MAP[from[0]])
-    new_from = [from_col, from_row]
+      puts "#{color.capitalize} enter a series of moves"
+      move_series = gets.chomp.split(",")
+      moves_in_coords = []
+      move_series.each do |pos|
+        x = Integer(pos[1])
+        y = Integer(LETTER_MAP[pos[0]])
+        moves_in_coords << [x,y]
+      end
 
-      raise InvalidMoveError if board[new_from].nil?
-      raise InvalidTeamError unless board[new_from].color == self.color
+      orig_pos = moves_in_coords.first
 
-      puts "Choose a spot to move to (b2 for example)"
-      to = gets.chomp.split("")
-      to_col = Integer(to[1])
-      to_row = Integer(LETTER_MAP[to[0]])
-      new_to = [to_col, to_row]
+      raise InvalidMoveError if board[orig_pos].nil?
+      raise InvalidTeamError unless board[orig_pos].color == self.color
 
-      [new_from,new_to]
+      moves_in_coords
 
     rescue InvalidMoveError
       puts "There's no piece there. Pick a new spot to move from"

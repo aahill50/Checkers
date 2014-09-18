@@ -6,13 +6,12 @@ class Piece
   MOVE_DIRS_RED = [[-1,1], [-1,-1]]
 
   attr_reader :color, :board
-  attr_accessor :is_king, :pos
+  attr_accessor :pos, :is_king
 
-  def initialize(board = Board.new, is_king = false, pos, color)
-    @board = board
-    @is_king = is_king
-    @pos = pos
-    @color = color
+  def initialize(pos, color, board = Board.new, is_king = false)
+    @pos, @color, @board, @is_king =
+     pos,  color, board,  is_king
+
   end
 
   def is_king?
@@ -22,7 +21,9 @@ class Piece
   def perform_slide(pos)
     raise InvalidMoveError unless board[pos].nil?
     return false unless dist(pos) == 1
+
     raise InvalidMoveError unless self.moves.include?(pos)
+
     self.board[self.pos], self.board[pos] = nil, self
     self.pos = pos
     true
@@ -31,14 +32,33 @@ class Piece
   def perform_jump(pos)
     raise InvalidMoveError unless dist(pos) == 2
     raise InvalidMoveError unless self.moves.include?(pos)
-    jumped_pos = calc_jumped_pos(self.pos, pos)
-    # jumped_pos
-    # board[jumped_pos]
 
+    jumped_pos = calc_jumped_pos(self.pos, pos)
     self.board[self.pos], self.board[pos] = nil, self
     self.board[jumped_pos] = nil
-
     self.pos = pos
+
+    true
+  end
+
+  def perform_move(pos)
+    case dist(pos)
+    when 1 then perform_slide(pos)
+    when 2 then perform_jump(pos)
+    else
+      raise InvalidMoveError
+    end
+  end
+
+  def perform_move!(pos)
+    self.board[self.pos], self.board[pos] = nil, self
+    self.pos = pos
+
+    if dist(pos) == 2
+      self.board[jumped_pos] = nil
+      jumped_pos = calc_jumped_pos(self.pos, pos)
+    end
+
     true
   end
 

@@ -4,9 +4,9 @@ require 'colorize'
 class Board
   attr_accessor :rows
 
-  def initialize(rows = Array.new(8) {Array.new(8)})
+  def initialize(primary_board = true, rows = Array.new(8) {Array.new(8)})
     @rows = rows
-    set_up
+    set_up if primary_board
   end
 
   def [](pos)
@@ -28,12 +28,8 @@ class Board
   def create_piece(x,y)
     pos = [x,y]
     case x
-    when 0 then self[pos] = Piece.new(self, false, pos, :white)
-    when 1 then self[pos] = Piece.new(self, false, pos, :white)
-    when 2 then self[pos] = Piece.new(self, false, pos, :white)
-    when 5 then self[pos] = Piece.new(self, false, pos, :red)
-    when 6 then self[pos] = Piece.new(self, false, pos, :red)
-    when 7 then self[pos] = Piece.new(self, false, pos, :red)
+    when (0..2) then self[pos] = Piece.new(pos, :white, self)
+    when (5..7) then self[pos] = Piece.new(pos, :red, self)
     end
   end
 
@@ -69,12 +65,30 @@ class Board
     nil
   end
 
-  def move_piece(from, to)
-    return true if self[from].perform_slide(to)
-    self[from].perform_jump(to)
+  def move_piece(move_sequence)
+    raise InvalidMoveError unless is_valid_move?(move_sequence)
+
+    move_sequence.each_cons(2) do |move_pair|
+      move1, move2 = move_pair
+      self[move1].perform_move(move2)
+    end
+
+    true
   rescue InvalidMoveError
     puts "You can't move like that"
     return false
+  end
+
+
+  def is_valid_move?(move_sequence)
+    duped_board = self.dup
+
+    move_sequence.each_cons(2) do |(move1, move2)|
+      return false if duped_board.empty?(move1)
+      return false unless duped_board[move1].moves.include?(move2)
+      duped_board[move1].perform_move!(move2)
+    end
+    true
   end
 
   def all_pieces
@@ -118,6 +132,22 @@ class Board
     print "  ".colorize(:light_black).on_light_white
     puts
     puts
+  end
+
+  def dup
+    new_board = Board.new(false)
+
+    self.all_pieces.each do |piece|
+      new_board[piece.pos] = Piece.new(piece.pos, piece.color, new_board, piece.is_king)
+    end
+
+    new_board
+  end
+end
+
+class Array
+  def deep_dup
+    map{ |el| (el.is_a?(Array) ? el.deep_dup : el)}
   end
 end
 

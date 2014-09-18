@@ -16,8 +16,7 @@ class Checkers
 
     until board.winner
       player_choice = current_player.choose
-      from, to = player_choice[0], player_choice[1]
-      next unless board.move_piece(from, to) #Will not switch turn if false
+      next unless board.move_piece(player_choice) #Will not switch turn if false
 
       switch_turn
       board.show_board

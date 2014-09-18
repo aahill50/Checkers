@@ -19,13 +19,14 @@ class Piece
   end
 
   def perform_slide(pos)
-    raise InvalidMoveError unless board[pos].nil?
+    raise InvalidMoveError unless board.empty?(pos)
     return false unless dist(pos) == 1
 
     raise InvalidMoveError unless self.moves.include?(pos)
 
     self.board[self.pos], self.board[pos] = nil, self
     self.pos = pos
+    promote if should_promote?
     true
   end
 
@@ -37,7 +38,7 @@ class Piece
     self.board[self.pos], self.board[pos] = nil, self
     self.board[jumped_pos] = nil
     self.pos = pos
-
+    promote if should_promote?
     true
   end
 
@@ -57,6 +58,8 @@ class Piece
     self.board[self.pos], self.board[pos] = nil, self
     self.pos = pos
 
+    promote if should_promote?
+
     if dist(pos) == 2
       self.board[jumped_pos] = nil
       jumped_pos = calc_jumped_pos(self.pos, pos)
@@ -66,11 +69,10 @@ class Piece
   end
 
   def move_dirs
-    case self.color
-    when :white
-      MOVE_DIRS_WHITE
-    when :red
-      MOVE_DIRS_RED
+    if self.is_king?
+      MOVE_DIRS_WHITE + MOVE_DIRS_RED
+    else
+      (self.color == :white) ? MOVE_DIRS_WHITE : MOVE_DIRS_RED
     end
   end
 
@@ -115,7 +117,12 @@ class Piece
   end
 
   def should_promote?
-
+    if self.color == :white
+      return true if self.pos[0] == 7
+    elsif self.color == :red
+      return true if self.pos[0] == 0
+    end
+    false
   end
 
   def promote
@@ -123,7 +130,8 @@ class Piece
   end
 
   def render
-     "\u25C9"
+    return "!\u25EF\!"  if self.is_king
+    " \u25C9 "
   end
 
   def inspect

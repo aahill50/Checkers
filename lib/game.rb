@@ -23,6 +23,10 @@ class Checkers
     end
 
     puts "#{board.winner.capitalize} team won!"
+
+  rescue QuitGame
+    puts "Thanks for playing!"
+    exit
   end
 
 
@@ -31,6 +35,8 @@ def switch_turn
 end
 end
 
+class QuitGame < StandardError
+end
 b= Board.new
 p1 = HumanPlayer.new("Player A", :white, b)
 p2 =  HumanPlayer.new("Player B", :red, b)

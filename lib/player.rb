@@ -18,10 +18,16 @@ class HumanPlayer
   end
 
   def choose
+
+    #CHANGE TO ACCEPT A SERIES OF MOVES
+    puts " Enter your series of moves ".colorize(:white).on_light_black
+    puts "#{color.capitalize}'s turn".colorize(color).on_black
     begin
-      #CHANGE TO ACCEPT A SERIES OF MOVES
-      puts "#{color.capitalize} enter a series of moves"
       move_series = gets.chomp.split(",")
+      if move_series.include?("q")
+        raise QuitGame
+      end
+      raise InvalidInputError if move_series.length < 2
       moves_in_coords = []
       move_series.each do |pos|
         x = Integer(pos[1])
@@ -35,6 +41,10 @@ class HumanPlayer
       raise InvalidTeamError unless board[orig_pos].color == self.color
 
       moves_in_coords
+
+    rescue InvalidInputError
+      puts "Invalid input, please try again"
+      retry
 
     rescue InvalidMoveError
       puts "There's no piece there. Pick a new spot to move from"
@@ -51,4 +61,7 @@ class HumanPlayer
 end
 
 class InvalidTeamError < StandardError
+end
+
+class InvalidInputError < StandardError
 end

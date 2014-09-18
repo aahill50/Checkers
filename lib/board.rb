@@ -4,8 +4,8 @@ require 'colorize'
 class Board
   attr_accessor :rows
 
-  def initialize(primary_board = true, rows = Array.new(8) {Array.new(8)})
-    @rows = rows
+  def initialize(primary_board = true)
+    @rows = Array.new(8) {Array.new(8)}
     set_up if primary_board
   end
 
@@ -118,7 +118,7 @@ class Board
             print "   ".colorize(:default).on_black
           else
             color = self[square].color
-            print " #{self[square].render} ".colorize(color).on_black
+            print "#{self[square].render}".colorize(color).on_black
           end
 
         else
@@ -129,7 +129,6 @@ class Board
           print " #{row_index}".colorize(:light_black).on_light_white
         end
       end
-
       puts
     end
 
@@ -140,7 +139,7 @@ class Board
 
     print "  ".colorize(:light_black).on_light_white
     puts
-    puts
+    puts "       Type q to quit       ".colorize(:white).on_black
   end
 
   def dup

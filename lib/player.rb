@@ -20,6 +20,7 @@ class HumanPlayer
 
   def choose
     begin
+      #CHANGE TO ACCEPT A SERIES OF MOVES
     puts "#{color.capitalize} choose a spot to move from (a1 for example)"
     from = gets.chomp.split("")
     from_col = Integer(from[1])

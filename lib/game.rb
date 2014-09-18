@@ -14,21 +14,22 @@ class Checkers
   def play
     board.show_board
 
-    until board.won?
-      begin
-        player_choice = current_player.choose
-        from, to = player_choice[0], player_choice[1]
-        next unless board.move_piece(from, to) #Will not switch turn if false
+    until board.winner
+      player_choice = current_player.choose
+      from, to = player_choice[0], player_choice[1]
+      next unless board.move_piece(from, to) #Will not switch turn if false
 
-        switch_turn
-        board.show_board
-      end
+      switch_turn
+      board.show_board
     end
+
+    puts "#{board.winner.capitalize} team won!"
   end
 
-  def switch_turn
-    @current_player = (@current_player == players[0]) ? players[1] : players[0]
-  end
+
+def switch_turn
+  @current_player = (@current_player == players[0]) ? players[1] : players[0]
+end
 end
 
 b= Board.new

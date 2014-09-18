@@ -10,12 +10,12 @@ class Board
   end
 
   def [](pos)
-    x,y = pos[0], pos[1]
+    x,y = pos
     self.rows[x][y]
   end
 
   def []=(pos, piece)
-    x,y = pos[0], pos[1]
+    x,y = pos
     self.rows[x][y] = piece
   end
 
@@ -35,10 +35,6 @@ class Board
     when 6 then self[pos] = Piece.new(self, false, pos, :red)
     when 7 then self[pos] = Piece.new(self, false, pos, :red)
     end
-  end
-
-  def pieces
-    self.rows.flatten.compact
   end
 
   def legal_squares
@@ -67,16 +63,10 @@ class Board
     !empty?(pos)
   end
 
-  def won?
-    white_count = 0
-    red_count = 0
-
-    all_pieces.each do |piece|
-      white_count += 1 if piece.color == :white
-      red_count += 1 if piece.color == :red
-    end
-
-    return true if white_count == 0 || red_count == 0
+  def winner
+    return :white if all_pieces.all? {|piece| piece.color == :white}
+    return :red if all_pieces.all? {|piece| piece.color == :red}
+    nil
   end
 
   def move_piece(from, to)
@@ -93,11 +83,14 @@ class Board
 
   def show_board
     system('clear')
-    print "   "
-    ('A'..'H').each {|num| print " #{num} "}
+    print "  ".colorize(:light_black).on_light_white
+    ('A'..'H').each do |num|
+      print " #{num} ".colorize(:light_black).on_light_white
+    end
+    print "  ".colorize(:light_black).on_light_white
     puts
     self.rows.each_with_index do |row, row_index|
-      print " #{row_index} "
+      print "#{row_index} ".colorize(:light_black).on_light_white
 
       row.each_with_index do |square, col_index|
         square = [row_index, col_index]
@@ -112,9 +105,19 @@ class Board
         else
           print "   ".colorize(:default).on_red
         end
+        if col_index == 7
+          print " #{row_index}".colorize(:light_black).on_light_white
+        end
       end
       puts
     end
+    print "  ".colorize(:light_black).on_light_white
+    ('A'..'H').each do |num|
+      print " #{num} ".colorize(:light_black).on_light_white
+    end
+    print "  ".colorize(:light_black).on_light_white
+    puts
+    puts
   end
 end
 

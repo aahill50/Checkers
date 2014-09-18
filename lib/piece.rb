@@ -30,9 +30,10 @@ class Piece
 
   def perform_jump(pos)
     raise InvalidMoveError unless dist(pos) == 2
+    raise InvalidMoveError unless self.moves.include?(pos)
     jumped_pos = calc_jumped_pos(self.pos, pos)
-    p jumped_pos
-    p board[jumped_pos]
+    # jumped_pos
+    # board[jumped_pos]
 
     self.board[self.pos], self.board[pos] = nil, self
     self.board[jumped_pos] = nil
@@ -51,19 +52,19 @@ class Piece
   end
 
   def dist(pos)
-    new_x, new_y = pos[0], pos[1]
-    curr_x, curr_y = self.pos[0], self.pos[1]
+    new_x, new_y = pos
+    curr_x, curr_y = self.pos
 
     diff_x = curr_x - new_x
     diff_y = curr_y - new_y
-    raise InvalidJumpError unless diff_x.abs == diff_y.abs
+    return false unless diff_x.abs == diff_y.abs
 
     diff_x.abs
  end
 
  def calc_jumped_pos(orig_pos, new_pos)
-   orig_x, orig_y = orig_pos[0], orig_pos[1]
-   new_x, new_y = new_pos[0], new_pos[1]
+   orig_x, orig_y = orig_pos
+   new_x, new_y = new_pos
 
    jumped_x = (orig_x + new_x) / 2
    jumped_y = (orig_y + new_y) / 2
@@ -79,18 +80,15 @@ class Piece
       self_y = self.pos[1]
       new_pos_1 = [self_x + dx, self_y + dy]
       new_pos_2 = [self_x + dx * 2, self_y + dy * 2]   #Adds jump positions
-      if board[new_pos_1].nil?
+
+      if board.empty?(new_pos_1)
         move_array += [new_pos_1]
-      elsif board[new_pos_1].color != self.color && board[new_pos_2].nil?
+      elsif board[new_pos_1].color != self.color && board.empty?(new_pos_2)
         move_array +=  [new_pos_2]
       end
     end
 
-
-
-
     move_array.select {|(x,y)| x.between?(0,7) && y.between?(0,7)}
-
   end
 
   def should_promote?
@@ -103,10 +101,13 @@ class Piece
 
   def render
     color = (self.color == :white) ? :white : :red
-    "O".colorize(color)
+    "o".colorize(color)
   end
 
   def inspect
     "#{self.color} - #{self.pos}"
   end
+end
+
+class InvalidJumpError < StandardError
 end

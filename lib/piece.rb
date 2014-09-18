@@ -50,7 +50,10 @@ class Piece
     end
   end
 
-  def perform_move!(pos)
+  def perform_move!(pos, chain_move = false)
+    if chain_move
+      raise InvalidMoveError if dist(pos) == 1
+    end
     self.board[self.pos], self.board[pos] = nil, self
     self.pos = pos
 
@@ -120,8 +123,7 @@ class Piece
   end
 
   def render
-    color = (self.color == :white) ? :white : :red
-    "o".colorize(color)
+     "\u25C9"
   end
 
   def inspect

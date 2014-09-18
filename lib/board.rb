@@ -86,7 +86,8 @@ class Board
     move_sequence.each_cons(2) do |(move1, move2)|
       return false if duped_board.empty?(move1)
       return false unless duped_board[move1].moves.include?(move2)
-      duped_board[move1].perform_move!(move2)
+      chain_move = move1 != move_sequence.first
+      duped_board[move1].perform_move!(move2, chain_move)
     end
     true
   end
@@ -97,12 +98,15 @@ class Board
 
   def show_board
     system('clear')
+
     print "  ".colorize(:light_black).on_light_white
     ('A'..'H').each do |num|
       print " #{num} ".colorize(:light_black).on_light_white
     end
+
     print "  ".colorize(:light_black).on_light_white
     puts
+
     self.rows.each_with_index do |row, row_index|
       print "#{row_index} ".colorize(:light_black).on_light_white
 
@@ -116,19 +120,24 @@ class Board
             color = self[square].color
             print " #{self[square].render} ".colorize(color).on_black
           end
+
         else
           print "   ".colorize(:default).on_red
         end
+
         if col_index == 7
           print " #{row_index}".colorize(:light_black).on_light_white
         end
       end
+
       puts
     end
+
     print "  ".colorize(:light_black).on_light_white
     ('A'..'H').each do |num|
       print " #{num} ".colorize(:light_black).on_light_white
     end
+
     print "  ".colorize(:light_black).on_light_white
     puts
     puts

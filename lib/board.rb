@@ -12,7 +12,6 @@ class Board
   def [](pos)
     x,y = pos[0], pos[1]
     self.rows[x][y]
-
   end
 
   def []=(pos, piece)
@@ -31,8 +30,10 @@ class Board
     case x
     when 0 then self[pos] = Piece.new(self, false, pos, :white)
     when 1 then self[pos] = Piece.new(self, false, pos, :white)
-    when 6 then self[pos] = Piece.new(self, false, pos, :light_red)
-    when 7 then self[pos] = Piece.new(self, false, pos, :light_red)
+    when 2 then self[pos] = Piece.new(self, false, pos, :white)
+    when 5 then self[pos] = Piece.new(self, false, pos, :red)
+    when 6 then self[pos] = Piece.new(self, false, pos, :red)
+    when 7 then self[pos] = Piece.new(self, false, pos, :red)
     end
   end
 
@@ -58,10 +59,49 @@ class Board
     x % 2 != y % 2 #Checks to see if indicies are not both even or both odd
   end
 
+  def empty?(pos)
+    self[pos].nil?
+  end
+
+  def occupied?(pos)
+    !empty?(pos)
+  end
+
+  def won?
+    white_count = 0
+    red_count = 0
+
+    all_pieces.each do |piece|
+      white_count += 1 if piece.color == :white
+      red_count += 1 if piece.color == :red
+    end
+
+    return true if white_count == 0 || red_count == 0
+  end
+
+  def move_piece(from, to)
+    return true if self[from].perform_slide(to)
+    self[from].perform_jump(to)
+  rescue InvalidMoveError
+    puts "You can't move like that"
+    return false
+  end
+
+  def all_pieces
+    self.rows.flatten.compact
+  end
+
   def show_board
+    system('clear')
+    print "   "
+    ('A'..'H').each {|num| print " #{num} "}
+    puts
     self.rows.each_with_index do |row, row_index|
+      print " #{row_index} "
+
       row.each_with_index do |square, col_index|
         square = [row_index, col_index]
+
         if legal_squares.include?(square)
           if self[square].nil?
             print "   ".colorize(:default).on_black
@@ -70,7 +110,7 @@ class Board
             print " #{self[square].render} ".colorize(color).on_black
           end
         else
-          print "   ".colorize(:default).on_light_red
+          print "   ".colorize(:default).on_red
         end
       end
       puts
@@ -78,6 +118,10 @@ class Board
   end
 end
 
-b = Board.new
-b.show_board
-b.pieces.each {|piece| p piece}
+class InvalidMoveError < StandardError
+end
+
+# b = Board.new
+# system('clear')
+# b.show_board
+# b.pieces.each {|piece| p piece, piece.moves}
